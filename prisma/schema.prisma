@@ -26,6 +26,13 @@ enum PaymentStatus {
   FAIL
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
+// add enum role
+
 model Users {
   id             Int                    @id @default(autoincrement())
   username       String
@@ -34,6 +41,7 @@ model Users {
   profileImage   String?
   createdAt      DateTime               @default(now()) @db.Timestamp(0)
   is_admin       Boolean                @default(false)
+  role           Role                   @default(USER)
   events         Events[]
   booking        Booking[]
   adminApprovals EventApprovalRequest[] @relation("AdminApprovals")

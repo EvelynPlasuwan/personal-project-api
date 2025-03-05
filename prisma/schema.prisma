@@ -53,22 +53,29 @@ model Events {
   id                   Int                    @id @default(autoincrement())
   userId               Int
   user                 Users                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  title                String                 @db.VarChar(255)
+  eventTitle           String                 @db.VarChar(255)
   description          String                 @db.Text
   eventDate            DateTime
   location             String
-  latitude             Float
-  longitude            Float
-  totalSeats           Int
-  ticketPrice          Decimal
+  eventType            String?
+  eventBanner          String
+  isApproved           Boolean                @default(false)
+  status               String                 @default("PENDING") // PENDING, APPROVED, REJECTED
+  statusMessage        String? // สำหรับใส่เหตุผลกรณี reject
+  // latitude             String
+  // longitude            String
+  // totalSeats           Int                    @default(0)
+  tickets              String // เก็บเป็น JSON string
+  endTime              String?
   createdAt            DateTime               @default(now()) @db.Timestamp(0)
   updatedAt            DateTime               @updatedAt @db.Timestamp(0)
-  eventCategories      EventCategories[]
+  eventCategories      String[]
   eventImages          EventImages[]
   booking              Booking[]
   eventApprovalRequest EventApprovalRequest[]
 
   @@index([userId])
+  @@map("events")
 }
 
 model EventApprovalRequest {
@@ -90,30 +97,34 @@ model EventApprovalRequest {
 }
 
 model Categories {
-  id              Int               @id @default(autoincrement())
-  name            String            @db.VarChar(100)
-  description     String            @db.Text
-  eventCategories EventCategories[]
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(100)
+  description String @db.Text
+  // eventCategories EventCategories[]
 
   @@index([name])
 }
 
-model EventCategories {
-  id         Int        @id @default(autoincrement())
-  eventId    Int
-  event      Events     @relation(fields: [eventId], references: [id])
-  categoryId Int
-  category   Categories @relation(fields: [categoryId], references: [id])
+// model EventCategories {
+//   id         Int @id @default(autoincrement())
+//   eventId    Int
+//   // event      Events     @relation(fields: [eventId], references: [id])
+//   categoryId Int
+//   // category   Categories @relation(fields: [categoryId], references: [id])
 
-  @@unique([eventId, categoryId]) //ป้องกันการเพิ่มซ้ำ
-}
+//   @@unique([eventId, categoryId]) //ป้องกันการเพิ่มซ้ำ
+// }
 
 model EventImages {
-  id         Int      @id @default(autoincrement())
-  eventId    Int
-  event      Events   @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  imageUrl   String
-  uploadedAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  eventId   Int
+  event     Events   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("eventImages")
 }
 
 model Booking {

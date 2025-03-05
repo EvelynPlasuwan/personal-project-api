@@ -59,6 +59,7 @@ exports.login = async (req, res, next) => {
       email: users.email,
       username: users.username,
       isAdmin: users.is_admin,
+      role: users.role,
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
       expiresIn: "30d",
@@ -76,6 +77,13 @@ exports.login = async (req, res, next) => {
   }
 }
 
-module.exports.getMe = (req, res) => {
-  res.json({ users: req.users})
-}
+module.exports.getMe = async(req, res) => {
+  try {
+    res.json({ 
+      users: req.users,
+      result: { role: req.users.role }
+    });
+  } catch (error) {
+    next(error)
+  }
+};

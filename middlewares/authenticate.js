@@ -113,10 +113,17 @@ exports.authenticateToken = async (req, res, next) => {
   }
 };
 
-// Middleware ตรวจสอบว่าเป็น Admin
+
 exports.isAdmin = (req, res, next) => {
+  // ตรวจสอบว่า req.user มีค่าหรือไม่
+  if (!req.user) {
+    return res.status(401).json({ message: 'กรุณาเข้าสู่ระบบก่อน' });
+  }
+  
+  // ตรวจสอบว่าเป็น ADMIN หรือไม่
   if (req.user.role !== 'ADMIN') {
     return res.status(403).json({ message: 'คุณไม่มีสิทธิ์เข้าถึง' });
   }
+  
   next();
 };

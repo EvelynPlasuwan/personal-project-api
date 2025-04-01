@@ -2,6 +2,51 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+
+const getEventById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    console.log('Getting event with id:', id);
+
+    // Convert id to integer and validate
+    const eventId = parseInt(id);
+    if (isNaN(eventId)) {
+      return res.status(400).json({ message: 'Invalid event ID format' });
+    }
+
+    const event = await prisma.events.findUnique({
+      where: {
+        id: eventId  // Use the converted integer ID
+      },
+      include: {
+        user: {
+          select: {
+            username: true
+          }
+        }
+      }
+    });
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    // Format the response
+    const formattedEvent = {
+      ...event,
+      user: event.user?.username || 'ไม่ระบุผู้จัด'
+    };
+
+    res.json(formattedEvent);
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ 
+      message: 'เกิดข้อผิดพลาดในการดึงข้อมูลอีเวนต์',
+      error: error.message 
+    });
+  }
+};
+
 const getAllEvents = async (req, res) => {
   try {
     // ดึงเฉพาะ events ที่ approved แล้ว
@@ -136,6 +181,8 @@ const getPendingEvents = async (req, res) => {
 const getUserEvents = async (req, res) => {
   const { userId } = req.params;
 
+  console.log("test")
+
   try {
     const events = await prisma.events.findMany({
       where: {
@@ -170,14 +217,21 @@ const getAllEventsForAdmin = async (req, res) => {
       }
     });
 
-    res.status(200).json(events);
-  } catch (error) {
-    console.error('Error fetching all events:', error);
-    res.status(500).json({ 
-      message: 'ไม่สามารถดึงข้อมูล events ทั้งหมดได้',
-      error: error.message 
-    });
-  }
+  // จัดรูปแบบข้อมูลก่อนส่งกลับ
+  const formattedEvents = events.map(event => ({
+    ...event,
+    tickets: event.tickets ? JSON.parse(event.tickets) : [],
+    user: event.user || { username: 'ไม่ระบุผู้จัด' }
+  }));
+
+  res.status(200).json(formattedEvents);
+} catch (error) {
+  console.error('Error fetching all events:', error);
+  res.status(500).json({ 
+    message: 'ไม่สามารถดึงข้อมูล events ทั้งหมดได้',
+    error: error.message 
+  });
+}
 };
 
 const deleteEvent = async (req, res) => {
@@ -225,5 +279,6 @@ module.exports = {
     getPendingEvents,
     getUserEvents,
     getAllEventsForAdmin,
-    deleteEvent
+    deleteEvent,
+    getEventById
 };

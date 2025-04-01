@@ -9,7 +9,7 @@ const authRouter = require("./routes/auth-route");
 const userRouter = require("./routes/user-route");
 const imageRouter = require('./routes/image-route');
 const eventRouter = require('./routes/event-route');
-
+const searchRoutes = require('./routes/search-route');
 const app = express();
 
 // middlewares
@@ -28,7 +28,7 @@ app.use("/api/auth", authRouter);     // เปลี่ยนจาก "/" เ�
 app.use("/api/users", userRouter);    // ใช้แค่ครั้งเดียว
 app.use('/api/images', imageRouter);  // เปลี่ยนจาก image เป็น images
 app.use('/api/events', eventRouter);  // คงไว้เหมือนเดิม
-
+app.use('/api/search', searchRoutes);
 // handle errors
 app.use(handleErrors);
 

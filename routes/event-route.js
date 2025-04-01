@@ -17,7 +17,8 @@ const router = express.Router();
 
 
 // Public Routes - ไม่ต้องการ authentication
-router.get('/', eventController.getAllEvents);  // ย้ายมาไว้ก่อน middleware
+router.get('/all', eventController.getAllEvents);  // ย้ายมาไว้ก่อน middleware
+router.get('/:id', eventController.getEventById);
 
 // Middleware สำหรับ routes ที่ต้องการ authentication
 router.use(authCheck);
